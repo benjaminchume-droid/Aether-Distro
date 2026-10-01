@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include "types.h"
+#include "aegis.h"
 
 enum {
     AETHER_SANDBOX_NEW_MOUNT_NS  = 1u << 0,
@@ -28,6 +29,10 @@ typedef struct {
 
 int aether_sandbox_linux_available(void);
 aether_status_t aether_sandbox_apply(const aether_sandbox_profile_t *profile);
+aether_status_t aether_sandbox_spawn_subject(aether_id_t subject,const aether_sandbox_profile_t *profile,
+                                            const char *path,char *const argv[],char *const envp[],
+                                            pid_t *pid_out);
+
 aether_status_t aether_sandbox_spawn(const aether_sandbox_profile_t *profile,
                                      const char *path,char *const argv[],char *const envp[],
                                      pid_t *pid_out);
