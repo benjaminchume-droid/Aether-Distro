@@ -68,16 +68,20 @@
 - [ ] Accounts lifecycle management
 - [ ] Password/PIN authentication
 - [ ] Security keys
-- [ ] Fingerprint provider
-- [ ] Face provider
+- [x] Biometric provider registry
+- [ ] Fingerprint provider implementation
+- [ ] Face provider implementation
 - [x] Kernel-backed cryptographic random, constant-time compare, and secure wipe primitives
 - [x] Aegis-backed permission broker
 - [x] Aegis policy attachment to identities/apps
 - [ ] Aegis filesystem/network/device enforcement
 - [x] Linux namespace/no_new_privs/resource-limit sandbox adapter
-- [ ] cgroups/seccomp/Landlock policy adapters
+- [x] cgroup v2 memory/PID/CPU quota adapter
+- [x] Landlock filesystem confinement adapter
+- [ ] seccomp policy adapter
 - [ ] Aegis virtualized filesystem/storage/resource providers
-- [ ] Sandboxing
+- [x] Aegis-gated sandbox process launch
+- [ ] Full application sandboxing
 
 ## Phase 6 — Lifecycle
 - [ ] Package manager
