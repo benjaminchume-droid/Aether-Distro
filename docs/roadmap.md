@@ -42,11 +42,11 @@
 - [ ] Hardware-backed boot validation
 
 ## Phase 4 — System Services & Aegis Foundation
-- [ ] Storage service
-- [ ] Network service
-- [ ] Audio/video services
-- [ ] Session service
-- [ ] Notification/clipboard/search infrastructure
+- [x] Storage service
+- [x] Network service
+- [x] Audio/video service facades
+- [x] Session service
+- [x] Notification/clipboard/search infrastructure
 - [x] Aegis policy model and general-purpose rule engine
 - [x] Aegis enforcement-plane architecture
 - [x] System-service registry/integration contracts
@@ -61,14 +61,15 @@
 - [ ] Aegis kernel/network/filesystem enforcement adapters
 
 ## Phase 5 — Security, Identity & Aegis Sandbox
+- [x] Host identity lookup
 - [ ] Accounts
 - [ ] Password/PIN authentication
 - [ ] TPM
 - [ ] Security keys
 - [ ] Fingerprint provider
 - [ ] Face provider
-- [ ] Permission broker
-- [ ] Aegis policy attachment to identities/apps
+- [x] Aegis-backed permission broker
+- [x] Aegis policy attachment to identities/apps
 - [ ] Aegis filesystem/network/device enforcement
 - [ ] Linux namespaces/cgroups/seccomp/Landlock sandbox adapters
 - [ ] Aegis virtualized filesystem/storage/resource providers
