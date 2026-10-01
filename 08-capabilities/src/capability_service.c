@@ -86,9 +86,9 @@ aether_status_t aether_capability_refresh(void){
 
     if(aether_tpm_refresh()==AETHER_OK){
         for(size_t i=0,n=aether_tpm_count();i<n;i++){
-            const aether_tpm_device_t *d=0;
-            if(aether_tpm_get(i,(aether_tpm_device_t **)&d)==AETHER_OK && d){
-                if(add(AETHER_CAP_TPM,i,d->device_path,"tpm")!=AETHER_OK && first_error==AETHER_OK)
+            aether_tpm_device_t d;
+            if(aether_tpm_get(i,&d)==AETHER_OK){
+                if(add(AETHER_CAP_TPM,i,d.device_path,"tpm")!=AETHER_OK && first_error==AETHER_OK)
                     first_error=AETHER_ERR_LIMIT;
             }
         }
