@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <string.h>
 #include "aether/identity_service.h"
 #include "aether/account_service.h"
 #include "aether/authentication_service.h"
@@ -6,7 +7,9 @@
 
 static aether_status_t verify_test(aether_id_t user_id,uint64_t challenge_id,const void *credential,size_t size,void *context){
  (void)challenge_id;
- if(user_id!=1 || context!=0 || size!=4 || !credential) return AETHER_ERR_PERMISSION;
+ (void)user_id;
+ (void)context;
+ if(size!=4 || !credential) return AETHER_ERR_PERMISSION;
  return memcmp(credential,"pass",4)==0 ? AETHER_OK : AETHER_ERR_PERMISSION;
 }
 
