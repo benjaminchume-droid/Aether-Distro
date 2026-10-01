@@ -1,0 +1,13 @@
+build/
+out/
+target/
+*.o
+*.a
+*.so
+*.iso
+*.img
+*.qcow2
+*.log
+.vscode/
+.idea/
+.DS_Store
