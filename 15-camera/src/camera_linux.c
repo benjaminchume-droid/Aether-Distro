@@ -1,4 +1,4 @@
-#include <aether/camera.h>
+#include "../include/aether/camera.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
