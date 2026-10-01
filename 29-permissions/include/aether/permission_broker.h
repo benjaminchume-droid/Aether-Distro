@@ -2,7 +2,7 @@
 #define AETHER_PERMISSION_BROKER_H
 #include <stddef.h>
 #include <aether/types.h>
-#include "aegis.h"
+#include <aether/aegis.h>
 
 typedef struct {
  aether_id_t subject_id;
