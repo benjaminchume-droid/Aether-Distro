@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <aether/init.h>
 #include <errno.h>
 #include <fcntl.h>
