@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 #include "aether/account_service.h"
 #include <pwd.h>
 #include <string.h>
