@@ -1,4 +1,4 @@
-#include <aether/bluetooth.h>
+#include "../include/aether/bluetooth.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
