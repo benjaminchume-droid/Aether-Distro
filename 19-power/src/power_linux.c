@@ -1,4 +1,4 @@
-#include <aether/power.h>
+#include "../include/aether/power.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
