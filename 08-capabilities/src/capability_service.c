@@ -6,6 +6,8 @@
 #include "../../13-audio/include/aether/audio.h"
 #include "../../15-camera/include/aether/camera.h"
 #include "../../18-bluetooth/include/aether/bluetooth.h"
+#include "../../17-network/include/aether/network.h"
+#include "../../24-tpm/include/aether/tpm_service.h"
 #include "../../21-battery/include/aether/battery.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -71,6 +73,24 @@ aether_status_t aether_capability_refresh(void){
         for(size_t i=0,n=aether_bluetooth_count();i<n;i++){
             const aether_bluetooth_adapter_t *d=aether_bluetooth_get(i);
             if(d && add(AETHER_CAP_BLUETOOTH,i,d->name,"sysfs")!=AETHER_OK && first_error==AETHER_OK) first_error=AETHER_ERR_LIMIT;
+        }
+    }
+
+    if(aether_network_scan()==AETHER_OK){
+        for(size_t i=0,n=aether_network_count();i<n;i++){
+            const aether_network_interface_t *d=aether_network_get(i);
+            if(d && d->wireless && add(AETHER_CAP_WIFI,i,d->name,"sysfs")!=AETHER_OK && first_error==AETHER_OK)
+                first_error=AETHER_ERR_LIMIT;
+        }
+    }
+
+    if(aether_tpm_refresh()==AETHER_OK){
+        for(size_t i=0,n=aether_tpm_count();i<n;i++){
+            const aether_tpm_device_t *d=0;
+            if(aether_tpm_get(i,(aether_tpm_device_t **)&d)==AETHER_OK && d){
+                if(add(AETHER_CAP_TPM,i,d->device_path,"tpm")!=AETHER_OK && first_error==AETHER_OK)
+                    first_error=AETHER_ERR_LIMIT;
+            }
         }
     }
 
