@@ -48,8 +48,7 @@ aether_status_t aether_authentication_init(void){
 }
 
 aether_status_t aether_authentication_register(const aether_auth_provider_t *provider){
-    if(!provider || !provider->provider_id) return AETHER_ERR_INVALID;
-    if(!provider->provider) return AETHER_ERR_INVALID;
+    if(!provider || !provider->provider) return AETHER_ERR_INVALID;
     if(provider->method==0 || !provider->provider[0]) return AETHER_ERR_INVALID;
     if(provider_count>=MAX_AUTH_PROVIDERS) return AETHER_ERR_LIMIT;
     if(find_provider(provider->method)) return AETHER_ERR_EXISTS;
