@@ -232,7 +232,7 @@ static int apply_seccomp_allowlist(const aether_sandbox_profile_t *p){
 
     struct sock_fprog program={(unsigned short)n,filter};
     if(prctl(PR_SET_NO_NEW_PRIVS,1,0,0,0)!=0){int saved=errno;free(filter);errno=saved;return -1;}
-    int rc=prctl(PR_SET_SECCOMP,SECCOMP_MODE_FILTER,&program,0,0);
+    int rc=(int)syscall(SYS_seccomp,SECCOMP_SET_MODE_FILTER,0,&program);
     int saved=errno;
     free(filter);
     errno=saved;
