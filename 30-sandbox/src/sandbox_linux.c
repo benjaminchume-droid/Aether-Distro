@@ -70,6 +70,15 @@ aether_status_t aether_sandbox_apply(const aether_sandbox_profile_t *profile){
     return AETHER_OK;
 }
 
+aether_status_t aether_sandbox_spawn_subject(aether_id_t subject,const aether_sandbox_profile_t *profile,
+                                     const char *path,char *const argv[],char *const envp[],
+                                     pid_t *pid_out){
+    if(!subject) return AETHER_ERR_INVALID;
+    aether_aegis_request_t request={subject,AETHER_AEGIS_RESOURCE_PROCESS,path};
+    if(aether_aegis_evaluate(&request)!=AETHER_AEGIS_DECISION_ALLOW) return AETHER_ERR_PERMISSION;
+    return aether_sandbox_spawn(profile,path,argv,envp,pid_out);
+}
+
 aether_status_t aether_sandbox_spawn(const aether_sandbox_profile_t *profile,
                                      const char *path,char *const argv[],char *const envp[],
                                      pid_t *pid_out){
