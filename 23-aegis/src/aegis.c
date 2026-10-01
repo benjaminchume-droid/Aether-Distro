@@ -1,4 +1,5 @@
 #include "aether/aegis.h"
+#include <stdio.h>
 #include <string.h>
 
 #define AETHER_AEGIS_MAX_RULES 512
