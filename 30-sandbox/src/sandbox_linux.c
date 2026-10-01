@@ -89,8 +89,10 @@ static int landlock_available(void){
 
 static int apply_landlock(const aether_sandbox_profile_t *p){
 #ifdef SYS_landlock_create_ruleset
-    if(!p->readonly_path_count) return 0;
-    if(!landlock_available()) { errno=ENOSYS; return -1; }
+    if(!p->readonly_path_count && !p->writable_path_count){
+        if(!landlock_available()){ errno=ENOSYS; return -1; }
+    }
+    if(!landlock_available()){ errno=ENOSYS; return -1; }
 
     struct landlock_ruleset_attr ruleset={0};
     ruleset.handled_access_fs=
@@ -111,8 +113,35 @@ static int apply_landlock(const aether_sandbox_profile_t *p){
         if(fd<0){int saved=errno;close(ruleset_fd);errno=saved;return -1;}
         struct landlock_path_beneath_attr rule={
             .parent_fd=fd,
-            .allowed_access=LANDLOCK_ACCESS_FS_EXECUTE|LANDLOCK_ACCESS_FS_READ_FILE|
+            .allowed_access=LANDLOCK_ACCESS_FS_EXECUTE|
+                             LANDLOCK_ACCESS_FS_READ_FILE|
                              LANDLOCK_ACCESS_FS_READ_DIR
+        };
+        int rc=(int)syscall(SYS_landlock_add_rule,ruleset_fd,LANDLOCK_RULE_PATH_BENEATH,&rule,0);
+        int saved=errno;
+        close(fd);
+        if(rc<0){close(ruleset_fd);errno=saved;return -1;}
+    }
+
+    for(size_t i=0;i<p->writable_path_count;i++){
+        if(!p->writable_paths[i] || !*p->writable_paths[i]) continue;
+        int fd=open(p->writable_paths[i],O_PATH|O_CLOEXEC);
+        if(fd<0){int saved=errno;close(ruleset_fd);errno=saved;return -1;}
+        struct landlock_path_beneath_attr rule={
+            .parent_fd=fd,
+            .allowed_access=LANDLOCK_ACCESS_FS_EXECUTE|
+                             LANDLOCK_ACCESS_FS_WRITE_FILE|
+                             LANDLOCK_ACCESS_FS_READ_FILE|
+                             LANDLOCK_ACCESS_FS_READ_DIR|
+                             LANDLOCK_ACCESS_FS_REMOVE_DIR|
+                             LANDLOCK_ACCESS_FS_REMOVE_FILE|
+                             LANDLOCK_ACCESS_FS_MAKE_CHAR|
+                             LANDLOCK_ACCESS_FS_MAKE_DIR|
+                             LANDLOCK_ACCESS_FS_MAKE_REG|
+                             LANDLOCK_ACCESS_FS_MAKE_SOCK|
+                             LANDLOCK_ACCESS_FS_MAKE_FIFO|
+                             LANDLOCK_ACCESS_FS_MAKE_BLOCK|
+                             LANDLOCK_ACCESS_FS_MAKE_SYM
         };
         int rc=(int)syscall(SYS_landlock_add_rule,ruleset_fd,LANDLOCK_RULE_PATH_BENEATH,&rule,0);
         int saved=errno;
