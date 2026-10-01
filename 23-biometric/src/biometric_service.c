@@ -13,7 +13,7 @@ aether_status_t aether_biometric_init(void){
 }
 
 aether_status_t aether_biometric_register(const aether_biometric_provider_t *provider){
-    if(!provider || !provider->provider_id || !provider->kind || !provider->provider || !provider->name)
+    if(!provider || !provider->provider_id || !provider->kind || !provider->provider[0] || !provider->name[0])
         return AETHER_ERR_INVALID;
     if(provider->kind!=AETHER_BIOMETRIC_FINGERPRINT && provider->kind!=AETHER_BIOMETRIC_FACE)
         return AETHER_ERR_INVALID;
