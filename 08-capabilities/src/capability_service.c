@@ -1,6 +1,6 @@
 #include <aether/capability_service.h>
 #include <aether/capability_registry.h>
-#include "../include/aether/../..//10-cpu/include/aether/cpu.h"
+#include "../../10-cpu/include/aether/cpu.h"
 #include "../../11-gpu/include/aether/gpu.h"
 #include "../../12-display/include/aether/display.h"
 #include "../../13-audio/include/aether/audio.h"
