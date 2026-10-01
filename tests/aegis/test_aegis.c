@@ -27,6 +27,14 @@ int main(void) {
     assert(aether_aegis_evaluate(&req) == AETHER_AEGIS_DECISION_DENY);
     req.scope = "trusted.example";
     assert(aether_aegis_evaluate(&req) == AETHER_AEGIS_DECISION_ALLOW);
+    req.scope = NULL;
+    assert(aether_aegis_evaluate(&req) == AETHER_AEGIS_DECISION_DENY);
+    char mutable_scope[] = "mutable.example";
+    aether_aegis_rule_t owned = {42,AETHER_AEGIS_RESOURCE_FILESYSTEM,AETHER_AEGIS_DECISION_ALLOW,mutable_scope,5};
+    assert(aether_aegis_add_rule(&owned) == AETHER_OK);
+    mutable_scope[0] = 'X';
+    req = (aether_aegis_request_t){42,AETHER_AEGIS_RESOURCE_FILESYSTEM,"mutable.example"};
+    assert(aether_aegis_evaluate(&req) == AETHER_AEGIS_DECISION_ALLOW);
     req.scope = "unlisted.example";
     assert(aether_aegis_evaluate(&req) == AETHER_AEGIS_DECISION_DENY);
 
