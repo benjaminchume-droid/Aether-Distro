@@ -27,6 +27,7 @@ typedef struct {
     uint64_t cpu_seconds;
     uint64_t file_bytes;
     uint64_t process_count;
+    uint32_t cpu_percent;
     const char *const *readonly_paths;
     size_t readonly_path_count;
     const char *cgroup_name;
