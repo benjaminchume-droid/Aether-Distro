@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
-#include "types.h"
+#include <aether/types.h>
 #include "aegis.h"
 
 enum {
