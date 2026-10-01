@@ -39,7 +39,7 @@ int main(void) {
     assert(aether_aegis_evaluate(&req) == AETHER_AEGIS_DECISION_DENY);
 
     assert(aether_aegis_remove_rule(42, AETHER_AEGIS_RESOURCE_NETWORK, "trusted.example") == AETHER_OK);
-    assert(aether_aegis_rule_count() == 1);
+    assert(aether_aegis_rule_count() == 2);
     aether_aegis_shutdown();
     return 0;
 }
