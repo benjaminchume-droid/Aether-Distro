@@ -8,4 +8,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build and test core
-        run: make test foundation-test service-test system-service-test aegis-test phase5-test sandbox-test crypto-tpm-test biometric-test capability-test pam-auth-test subject-test hardware-test
+        run: make test foundation-test service-test system-service-test aegis-test phase5-test sandbox-test crypto-tpm-test biometric-test capability-test pam-auth-test subject-test aegis-access-test hardware-test
