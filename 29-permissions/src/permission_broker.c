@@ -29,7 +29,7 @@ aether_status_t aether_permission_revoke_access(aether_id_t subject,aether_aegis
                                                  const char *scope,uint32_t access){
     aether_status_t st=check_subject(subject);
     if(st!=AETHER_OK) return st;
-    return aether_aegis_remove_rule(subject,resource,scope);
+    return aether_aegis_remove_rule_access(subject,resource,scope,access);
 }
 
 aether_status_t aether_permission_revoke(aether_id_t subject,aether_aegis_resource_t resource,
