@@ -33,7 +33,7 @@ static void add_mount(const char *path,const char *options){
     snprintf(v->mountpoint,sizeof(v->mountpoint),"%s",path);
     v->total_bytes=(uint64_t)st.f_blocks*st.f_frsize;
     v->available_bytes=(uint64_t)st.f_bavail*st.f_frsize;
-    v->readonly=(options && (strstr(options,",ro") || strncmp(options,"ro",2)==0)) ? 1u : 0u;
+    v->readonly=(st.f_flag & ST_RDONLY) ? 1u : 0u;
 }
 
 aether_status_t aether_storage_service_refresh(void){
