@@ -81,7 +81,7 @@
 - [x] Linux namespace/no_new_privs/resource-limit sandbox adapter
 - [x] cgroup v2 memory/PID/CPU quota adapter
 - [x] Landlock filesystem confinement adapter
-- [ ] seccomp policy adapter
+- [x] caller-defined seccomp BPF allowlist adapter
 - [ ] Aegis virtualized filesystem/storage/resource providers
 - [x] Aegis-gated sandbox process launch
 - [ ] Full application sandboxing
