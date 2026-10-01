@@ -17,7 +17,6 @@ static void fill(const struct passwd *pw, aether_account_t *out) {
     snprintf(out->name,sizeof(out->name),"%s",pw->pw_name?pw->pw_name:"");
     snprintf(out->home,sizeof(out->home),"%s",pw->pw_dir?pw->pw_dir:"");
     snprintf(out->shell,sizeof(out->shell),"%s",pw->pw_shell?pw->pw_shell:"");
-    if(pw->pw_uid < 1000u) out->flags|=AETHER_ACCOUNT_SYSTEM;
     if(!pw->pw_shell || !*pw->pw_shell || strcmp(pw->pw_shell,"/usr/sbin/nologin")==0 || strcmp(pw->pw_shell,"/sbin/nologin")==0)
         out->flags|=AETHER_ACCOUNT_NO_LOGIN;
 }
