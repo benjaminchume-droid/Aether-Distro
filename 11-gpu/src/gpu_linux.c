@@ -1,4 +1,4 @@
-#include <aether/gpu.h>
+#include "../include/aether/gpu.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
