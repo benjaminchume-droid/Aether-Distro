@@ -49,6 +49,7 @@ typedef struct {
 aether_status_t aether_aegis_init(void);
 aether_status_t aether_aegis_add_rule(const aether_aegis_rule_t *rule);
 aether_status_t aether_aegis_remove_rule(aether_id_t subject_id, aether_aegis_resource_t resource, const char *scope);
+aether_status_t aether_aegis_remove_rule_access(aether_id_t subject_id, aether_aegis_resource_t resource, const char *scope, uint32_t access);
 aether_aegis_decision_t aether_aegis_evaluate(const aether_aegis_request_t *request);
 int aether_aegis_has_rule(aether_id_t subject_id,aether_aegis_resource_t resource,const char *scope);
 size_t aether_aegis_rule_count(void);
