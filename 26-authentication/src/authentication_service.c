@@ -1,5 +1,6 @@
 #include "aether/authentication_service.h"
 #include <string.h>
+#include "aether/event_bus.h"
 
 #define MAX_AUTH_PROVIDERS 32
 #define MAX_AUTH_CHALLENGES 128
@@ -34,6 +35,8 @@ aether_status_t aether_authentication_begin(const aether_auth_request_t *request
         challenges[i].method=request->method;
         challenges[i].result=AETHER_AUTH_RESULT_PENDING;
         *challenge_id=challenges[i].challenge_id;
+        aether_event_t event={AETHER_EVENT_AUTH_REQUESTED,request->user_id,&challenges[i],sizeof(challenges[i])};
+        aether_event_publish(&event);
         return AETHER_OK;
     }
     return AETHER_ERR_LIMIT;
