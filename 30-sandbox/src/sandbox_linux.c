@@ -7,6 +7,7 @@
 #include <sched.h>
 #include <signal.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <sys/mount.h>
 #include <sys/prctl.h>
@@ -23,14 +24,43 @@ static int set_limit(int resource, uint64_t value){
     return setrlimit(resource,&limit)==0 ? 0 : -1;
 }
 
+static int write_text_file(const char *path,const char *text){
+    int fd=open(path,O_WRONLY|O_CLOEXEC);
+    if(fd<0) return -1;
+    size_t len=strlen(text);
+    ssize_t written=write(fd,text,len);
+    int saved=errno;
+    close(fd);
+    errno=saved;
+    return written==(ssize_t)len ? 0 : -1;
+}
+
+static int apply_user_namespace(void){
+    uid_t uid=getuid();
+    gid_t gid=getgid();
+    char mapping[128];
+
+    if(unshare(CLONE_NEWUSER)!=0) return -1;
+    if(write_text_file("/proc/self/setgroups","deny")!=0 && errno!=ENOENT) return -1;
+
+    int n=snprintf(mapping,sizeof(mapping),"0 %u 1\\n",(unsigned)uid);
+    if(n<=0 || (size_t)n>=sizeof(mapping) || write_text_file("/proc/self/uid_map",mapping)!=0) return -1;
+
+    n=snprintf(mapping,sizeof(mapping),"0 %u 1\\n",(unsigned)gid);
+    if(n<=0 || (size_t)n>=sizeof(mapping) || write_text_file("/proc/self/gid_map",mapping)!=0) return -1;
+    return 0;
+}
+
 static int apply_namespaces(uint32_t flags){
     int ns=0;
-    if(flags&AETHER_SANDBOX_NEW_USER_NS) ns|=CLONE_NEWUSER;
     if(flags&AETHER_SANDBOX_NEW_MOUNT_NS) ns|=CLONE_NEWNS;
     if(flags&AETHER_SANDBOX_NEW_PID_NS) ns|=CLONE_NEWPID;
     if(flags&AETHER_SANDBOX_NEW_NET_NS) ns|=CLONE_NEWNET;
     if(flags&AETHER_SANDBOX_NEW_IPC_NS) ns|=CLONE_NEWIPC;
     if(flags&AETHER_SANDBOX_NEW_UTS_NS) ns|=CLONE_NEWUTS;
+    if(flags&AETHER_SANDBOX_NEW_USER_NS){
+        if(apply_user_namespace()!=0) return -1;
+    }
     if(ns && unshare(ns)!=0) return -1;
     if(flags&AETHER_SANDBOX_PRIVATE_MOUNTS){
         if(mount(NULL,"/",NULL,MS_REC|MS_PRIVATE,NULL)!=0) return -1;
@@ -87,6 +117,17 @@ aether_status_t aether_sandbox_spawn(const aether_sandbox_profile_t *profile,
     if(pid<0) return AETHER_ERR_IO;
     if(pid==0){
         if(aether_sandbox_apply(profile)!=AETHER_OK) _exit(126);
+        if(profile->flags&AETHER_SANDBOX_NEW_PID_NS){
+            pid_t init_child=fork();
+            if(init_child<0) _exit(126);
+            if(init_child>0){
+                int status=0;
+                if(waitpid(init_child,&status,0)<0) _exit(126);
+                if(WIFEXITED(status)) _exit(WEXITSTATUS(status));
+                if(WIFSIGNALED(status)) _exit(128+WTERMSIG(status));
+                _exit(126);
+            }
+        }
         if(envp) execve(path,argv,envp); else execv(path,argv);
         _exit(127);
     }
