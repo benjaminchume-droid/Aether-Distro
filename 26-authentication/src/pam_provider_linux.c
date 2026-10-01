@@ -2,6 +2,7 @@
 #include "../include/aether/pam_provider.h"
 #include <dlfcn.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "aether/account_service.h"
 #include "aether/authentication_service.h"
