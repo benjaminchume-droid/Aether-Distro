@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "aether/service_manager.h"
 static aether_status_t ok(void *x){(void)x;return AETHER_OK;}
 int main(void){
