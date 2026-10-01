@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #define AETHER_MAX_DEVICES 256
 static aether_device_t devices[AETHER_MAX_DEVICES];
 static char names[AETHER_MAX_DEVICES][128], vendors[AETHER_MAX_DEVICES][128], classes[AETHER_MAX_DEVICES][128];
