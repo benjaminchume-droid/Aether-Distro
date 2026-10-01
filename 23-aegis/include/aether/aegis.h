@@ -22,18 +22,28 @@ typedef enum {
     AETHER_AEGIS_RESOURCE_PROCESS
 } aether_aegis_resource_t;
 
+enum {
+    AETHER_AEGIS_ACCESS_READ    = 1u << 0,
+    AETHER_AEGIS_ACCESS_WRITE   = 1u << 1,
+    AETHER_AEGIS_ACCESS_EXECUTE = 1u << 2,
+    AETHER_AEGIS_ACCESS_CREATE  = 1u << 3,
+    AETHER_AEGIS_ACCESS_DELETE  = 1u << 4
+};
+
 typedef struct {
     aether_id_t subject_id;
     aether_aegis_resource_t resource;
     aether_aegis_decision_t decision;
     const char *scope;
     uint32_t priority;
+    uint32_t access;
 } aether_aegis_rule_t;
 
 typedef struct {
     aether_id_t subject_id;
     aether_aegis_resource_t resource;
     const char *scope;
+    uint32_t access;
 } aether_aegis_request_t;
 
 aether_status_t aether_aegis_init(void);
