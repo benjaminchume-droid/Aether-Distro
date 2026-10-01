@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <aether/service_manager.h>
 #include <errno.h>
 #include <signal.h>
