@@ -13,6 +13,7 @@
 #include <sys/mount.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -171,11 +172,12 @@ static int apply_cgroup(const aether_sandbox_profile_t *p){
     if(mkdir(dir,0755)!=0 && errno!=EEXIST) return -1;
 
     if(p->memory_bytes && write_limit(dir,"memory.max",p->memory_bytes)!=0) return -1;
-    if(p->cpu_seconds){
-        char path[512];
+    if(p->cpu_percent){
+        if(p->cpu_percent>100){errno=EINVAL;return -1;}
+        char path[512],value[64];
         snprintf(path,sizeof(path),"%s/cpu.max",dir);
-        char value[64];
-        snprintf(value,sizeof(value),"%llu 1000000",(unsigned long long)p->cpu_seconds*1000000ULL);
+        unsigned long long quota=(unsigned long long)p->cpu_percent*10000ULL;
+        snprintf(value,sizeof(value),"%llu 1000000",quota);
         if(write_text_file(path,value)!=0) return -1;
     }
     if(p->process_count && write_limit(dir,"pids.max",p->process_count)!=0) return -1;
