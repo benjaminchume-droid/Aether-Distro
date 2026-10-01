@@ -62,16 +62,20 @@
 
 ## Phase 5 — Security, Identity & Aegis Sandbox
 - [x] Host identity lookup
-- [ ] Accounts
+- [x] Account enumeration and lookup
+- [x] Authentication provider/challenge orchestration
+- [x] TPM discovery and device availability
+- [ ] Accounts lifecycle management
 - [ ] Password/PIN authentication
-- [ ] TPM
 - [ ] Security keys
 - [ ] Fingerprint provider
 - [ ] Face provider
+- [x] Kernel-backed cryptographic random, constant-time compare, and secure wipe primitives
 - [x] Aegis-backed permission broker
 - [x] Aegis policy attachment to identities/apps
 - [ ] Aegis filesystem/network/device enforcement
-- [ ] Linux namespaces/cgroups/seccomp/Landlock sandbox adapters
+- [x] Linux namespace/no_new_privs/resource-limit sandbox adapter
+- [ ] cgroups/seccomp/Landlock policy adapters
 - [ ] Aegis virtualized filesystem/storage/resource providers
 - [ ] Sandboxing
 
