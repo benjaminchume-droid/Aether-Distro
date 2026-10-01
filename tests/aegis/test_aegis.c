@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <stdio.h>
+#include <unistd.h>
 #include "aether/aegis.h"
 
 int main(void) {
@@ -40,6 +42,16 @@ int main(void) {
 
     assert(aether_aegis_remove_rule(42, AETHER_AEGIS_RESOURCE_NETWORK, "trusted.example") == AETHER_OK);
     assert(aether_aegis_rule_count() == 2);
+    char policy_path[]="/tmp/aether-aegis-XXXXXX";
+    int policy_fd=mkstemp(policy_path);
+    assert(policy_fd>=0);
+    close(policy_fd);
+    assert(aether_aegis_save(policy_path)==AETHER_OK);
+    aether_aegis_shutdown();
+    assert(aether_aegis_load(policy_path)==AETHER_OK);
+    assert(aether_aegis_rule_count()==2);
+    assert(aether_aegis_evaluate(&(aether_aegis_request_t){42,AETHER_AEGIS_RESOURCE_NETWORK,"example.invalid"})==AETHER_AEGIS_DECISION_DENY);
+    assert(unlink(policy_path)==0);
     aether_aegis_shutdown();
     return 0;
 }
