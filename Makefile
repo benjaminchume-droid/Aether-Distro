@@ -4,7 +4,7 @@ INCLUDES := -Icore/include -I03-init/include -I04-service-manager/include -I08-c
 CORE_SRC := core/src/power.c core/src/identity.c core/src/types.c core/src/ipc.c core/src/event_bus.c core/src/capability_registry.c 03-init/src/init.c 04-service-manager/src/service_manager.c 08-capabilities/src/capability_registry.c 09-device/src/device_manager.c
 CORE_OBJ := $(CORE_SRC:.c=.o)
 
-.PHONY: all test foundation-test service-test aether-init initramfs kernel boot clean
+.PHONY: all test foundation-test service-test aether-init initramfs kernel iso boot boot-iso clean
 all: test foundation-test service-test
 
 test: build/test_power
@@ -34,8 +34,14 @@ initramfs: aether-init
 kernel:
 	sh build/kernel/build.sh
 
+iso: kernel initramfs
+	sh build/iso/build.sh
+
 boot: kernel initramfs
 	sh build/qemu/run-initramfs.sh
+
+boot-iso: iso
+	sh build/qemu/run-iso.sh
 
 core/src/%.o: core/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
