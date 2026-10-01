@@ -1,4 +1,4 @@
-#include <aether/battery.h>
+#include "../include/aether/battery.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
