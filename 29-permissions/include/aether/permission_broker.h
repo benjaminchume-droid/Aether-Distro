@@ -8,6 +8,7 @@ typedef struct {
  aether_id_t subject_id;
  aether_aegis_resource_t resource;
  const char *scope;
+ uint32_t access;
 } aether_permission_request_t;
 
 aether_status_t aether_permission_init(void);
