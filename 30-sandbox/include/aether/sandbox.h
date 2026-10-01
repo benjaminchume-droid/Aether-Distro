@@ -33,6 +33,8 @@ typedef struct {
     size_t seccomp_syscall_count;
     const char *const *readonly_paths;
     size_t readonly_path_count;
+    const char *const *writable_paths;
+    size_t writable_path_count;
     const char *cgroup_name;
 } aether_sandbox_profile_t;
 
