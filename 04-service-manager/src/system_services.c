@@ -27,9 +27,9 @@ aether_status_t aether_system_service_set_available(aether_system_service_kind_t
 }
 aether_status_t aether_system_service_get(aether_system_service_kind_t k,aether_system_service_status_t *out){if(!out)return AETHER_ERR_INVALID;aether_system_service_status_t*s=find(k);if(!s)return AETHER_ERR_NOT_FOUND;*out=*s;return AETHER_OK;}
 aether_status_t aether_system_services_refresh(void){
- aether_system_service_set_available(AETHER_SYSTEM_STORAGE,aether_storage_service_refresh()==AETHER_OK&&({size_t n=0;aether_storage_volume_count(&n)==AETHER_OK&&n>0;}));
- aether_system_service_set_available(AETHER_SYSTEM_NETWORK,aether_network_service_refresh()==AETHER_OK&&({size_t n=0;aether_network_count(&n)==AETHER_OK&&n>0;}));
- aether_system_service_set_available(AETHER_SYSTEM_AUDIO,aether_audio_service_refresh()==AETHER_OK&&({size_t n=0;aether_audio_device_count(&n)==AETHER_OK&&n>0;}));
+ { size_t n=0; aether_status_t st=aether_storage_service_refresh(); aether_storage_volume_count(&n); aether_system_service_set_available(AETHER_SYSTEM_STORAGE,st==AETHER_OK&&n>0); }
+ { size_t n=0; aether_status_t st=aether_network_service_refresh(); aether_network_state_count(&n); aether_system_service_set_available(AETHER_SYSTEM_NETWORK,st==AETHER_OK&&n>0); }
+ { size_t n=0; aether_status_t st=aether_audio_service_refresh(); aether_audio_service_count(&n); aether_system_service_set_available(AETHER_SYSTEM_AUDIO,st==AETHER_OK&&n>0); }
  aether_system_service_set_available(AETHER_SYSTEM_VIDEO,aether_camera_scan()==AETHER_OK&&aether_camera_count()>0);
  return AETHER_OK;
 }
