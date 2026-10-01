@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stddef.h>
+#include <unistd.h>
 #include "aether/authentication_service.h"
 #include "aether/pam_provider.h"
 
@@ -10,7 +11,7 @@ int main(void){
     if(st==AETHER_OK){
         assert(aether_pam_password_provider_available()==1);
         uint64_t challenge=0;
-        aether_auth_request_t request={.user_id=1,.method=AETHER_AUTH_PASSWORD,.challenge_id=0};
+        aether_auth_request_t request={.user_id=(aether_id_t)getuid(),.method=AETHER_AUTH_PASSWORD,.challenge_id=0};
         assert(aether_authentication_begin(&request,&challenge)==AETHER_OK);
         assert(challenge!=0);
         assert(aether_authentication_submit(challenge,"",0)==AETHER_OK);
