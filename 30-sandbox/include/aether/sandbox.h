@@ -18,7 +18,8 @@ enum {
     AETHER_SANDBOX_NO_NEW_PRIVS   = 1u << 7,
     AETHER_SANDBOX_STRICT_SECCOMP = 1u << 8,
     AETHER_SANDBOX_LANDLOCK_RO    = 1u << 9,
-    AETHER_SANDBOX_CGROUP_LIMITS  = 1u << 10
+    AETHER_SANDBOX_CGROUP_LIMITS  = 1u << 10,
+    AETHER_SANDBOX_SECCOMP_ALLOWLIST = 1u << 11
 };
 
 typedef struct {
@@ -28,6 +29,8 @@ typedef struct {
     uint64_t file_bytes;
     uint64_t process_count;
     uint32_t cpu_percent;
+    const int *seccomp_syscalls;
+    size_t seccomp_syscall_count;
     const char *const *readonly_paths;
     size_t readonly_path_count;
     const char *cgroup_name;
