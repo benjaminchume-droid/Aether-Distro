@@ -1,0 +1,11 @@
+name: Aether Core
+on:
+  push:
+  pull_request:
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test core
+        run: make test
