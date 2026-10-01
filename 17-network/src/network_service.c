@@ -1,5 +1,6 @@
 #include "../include/aether/network_service.h"
 #include "../include/aether/network.h"
+#include <stdio.h>
 
 aether_status_t aether_network_service_refresh(void){return aether_network_scan();}
 aether_status_t aether_network_state_count(size_t*out){
