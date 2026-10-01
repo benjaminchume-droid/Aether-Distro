@@ -42,7 +42,7 @@ int main(void){
  assert(state.result==AETHER_AUTH_RESULT_SUCCESS);
  assert(aether_authentication_complete(challenge,AETHER_AUTH_RESULT_FAILURE)==AETHER_ERR_STATE);
  assert(aether_authentication_get(challenge,&state)==AETHER_OK);
- assert(state.result==AETHER_AUTH_RESULT_FAILURE);
+ assert(state.result==AETHER_AUTH_RESULT_SUCCESS);
  aether_authentication_shutdown();
 
  assert(aether_permission_subject_init()==AETHER_OK);
