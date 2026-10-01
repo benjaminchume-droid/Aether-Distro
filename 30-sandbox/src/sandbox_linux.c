@@ -4,6 +4,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/filter.h>
+#include <linux/audit.h>
+#include <linux/unistd.h>
 #include <linux/landlock.h>
 #include <linux/seccomp.h>
 #include <sched.h>
@@ -11,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/mount.h>
+#include <stdlib.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
@@ -161,6 +164,57 @@ static int write_limit(const char *dir,const char *name,uint64_t value){
     return write_text_file(path,value_text);
 }
 
+static int seccomp_audit_arch(void){
+#if defined(__x86_64__)
+    return AUDIT_ARCH_X86_64;
+#elif defined(__aarch64__)
+    return AUDIT_ARCH_AARCH64;
+#else
+    return -1;
+#endif
+}
+
+static int apply_seccomp_allowlist(const aether_sandbox_profile_t *p){
+#ifdef PR_SET_SECCOMP
+    if(!p->seccomp_syscall_count) return 0;
+    if(!p->seccomp_syscalls) { errno=EINVAL; return -1; }
+    if(seccomp_audit_arch()<0){ errno=ENOTSUP; return -1; }
+
+    size_t count=p->seccomp_syscall_count;
+    struct sock_filter *filter=calloc(count*2+5,sizeof(*filter));
+    if(!filter){errno=ENOMEM;return -1;}
+
+    size_t n=0;
+    filter[n++]=(struct sock_filter)BPF_STMT(BPF_LD|BPF_W|BPF_ABS,offsetof(struct seccomp_data,arch));
+    filter[n++]=(struct sock_filter)BPF_JUMP(BPF_JMP|BPF_JEQ|BPF_K,(uint32_t)seccomp_audit_arch(),1,0);
+    filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_KILL_PROCESS);
+    filter[n++]=(struct sock_filter)BPF_STMT(BPF_LD|BPF_W|BPF_ABS,offsetof(struct seccomp_data,nr));
+
+    for(size_t i=0;i<count;i++){
+        if(p->seccomp_syscalls[i]<0){
+            free(filter);
+            errno=EINVAL;
+            return -1;
+        }
+        filter[n++]=(struct sock_filter)BPF_JUMP(BPF_JMP|BPF_JEQ|BPF_K,(uint32_t)p->seccomp_syscalls[i],0,1);
+        filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_ALLOW);
+    }
+    filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_KILL_PROCESS);
+
+    struct sock_fprog program={(unsigned short)n,filter};
+    if(prctl(PR_SET_NO_NEW_PRIVS,1,0,0,0)!=0){int saved=errno;free(filter);errno=saved;return -1;}
+    int rc=prctl(PR_SET_SECCOMP,SECCOMP_MODE_FILTER,&program,0,0);
+    int saved=errno;
+    free(filter);
+    errno=saved;
+    return rc;
+#else
+    (void)p;
+    errno=ENOSYS;
+    return -1;
+#endif
+}
+
 static int apply_cgroup(const aether_sandbox_profile_t *p){
     if(!p->cgroup_name || !*p->cgroup_name) return 0;
     char mountpoint[256];
@@ -210,6 +264,11 @@ aether_status_t aether_sandbox_apply(const aether_sandbox_profile_t *profile){
     if(profile->flags&AETHER_SANDBOX_STRICT_SECCOMP){
         if(!(profile->flags&AETHER_SANDBOX_NO_NEW_PRIVS) && prctl(PR_SET_NO_NEW_PRIVS,1,0,0,0)!=0) return AETHER_ERR_PERMISSION;
         if(prctl(PR_SET_SECCOMP,SECCOMP_MODE_STRICT,0,0,0)!=0) return AETHER_ERR_PERMISSION;
+    }
+    if(profile->flags&AETHER_SANDBOX_SECCOMP_ALLOWLIST){
+        if(apply_seccomp_allowlist(profile)!=0)
+            return (errno==EPERM || errno==EACCES)?AETHER_ERR_PERMISSION:
+                   (errno==ENOSYS || errno==ENOTSUP)?AETHER_ERR_UNAVAILABLE:AETHER_ERR_INVALID;
     }
     if((profile->flags&AETHER_SANDBOX_LANDLOCK_RO) && apply_landlock(profile)!=0)
         return (errno==EPERM || errno==EACCES)?AETHER_ERR_PERMISSION:AETHER_ERR_UNAVAILABLE;
