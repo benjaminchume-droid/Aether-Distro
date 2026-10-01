@@ -24,7 +24,7 @@ static int known_mount(const char *path){
     return 0;
 }
 
-static void add_mount(const char *path,const char *options){
+static void add_mount(const char *path){
     if(count>=MAX_VOLUMES || !path || !*path || known_mount(path)) return;
     struct statvfs st;
     if(statvfs(path,&st)!=0) return;
@@ -43,26 +43,11 @@ aether_status_t aether_storage_service_refresh(void){
 
     char line[4096];
     while(fgets(line,sizeof(line),f) && count<MAX_VOLUMES){
-        char *save=0;
-        char *field=strtok_r(line," ",&save);
-        unsigned field_no=1;
         char mountpoint[256]={0};
-        char mount_options[512]={0};
-        int separator=0;
-        while(field){
-            if(!separator && field_no==5) snprintf(mountpoint,sizeof(mountpoint),"%s",field);
-            if(!separator && strcmp(field,"-")==0) separator=1;
-            else if(separator && field_no>0){
-                /* After '-' the mount options are not in the fixed pre-separator fields.
-                   We only need the mountpoint here; readonly is determined below when possible. */
-            }
-            if(!separator) field_no++;
-            field=strtok_r(NULL," ",&save);
-            if(separator) break;
-        }
+        if(sscanf(line,"%*s %*s %*s %*s %255s",mountpoint)!=1) continue;
         if(!mountpoint[0]) continue;
         decode_mountpoint(mountpoint);
-        add_mount(mountpoint,mount_options);
+        add_mount(mountpoint);
     }
     fclose(f);
     return count ? AETHER_OK : AETHER_ERR_UNAVAILABLE;
