@@ -86,14 +86,16 @@ int main(void){
         .seccomp_syscalls=allowed,
         .seccomp_syscall_count=1
     };
-    pid=fork();
-    assert(pid>=0);
-    if(pid==0){
-        assert(aether_sandbox_apply(&profile)==AETHER_OK);
-        _exit(0);
+    if(aether_sandbox_seccomp_available()){
+        pid=fork();
+        assert(pid>=0);
+        if(pid==0){
+            assert(aether_sandbox_apply(&profile)==AETHER_OK);
+            _exit(0);
+        }
+        assert(waitpid(pid,&status,0)==pid);
+        assert(WIFEXITED(status) && WEXITSTATUS(status)==0);
     }
-    assert(waitpid(pid,&status,0)==pid);
-    assert(WIFEXITED(status) && WEXITSTATUS(status)==0);
 
     check_landlock();
 
