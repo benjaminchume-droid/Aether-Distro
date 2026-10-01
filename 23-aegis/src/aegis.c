@@ -78,6 +78,16 @@ aether_aegis_decision_t aether_aegis_evaluate(const aether_aegis_request_t *requ
 
 size_t aether_aegis_rule_count(void){return rule_count;}
 
+int aether_aegis_has_rule(aether_id_t subject_id,aether_aegis_resource_t resource,const char *scope){
+    if(!subject_id || !resource) return 0;
+    for(size_t i=0;i<rule_count;i++){
+        if(rules[i].subject_id==subject_id && rules[i].resource==resource &&
+           scope_matches(rules[i].scope,scope))
+            return 1;
+    }
+    return 0;
+}
+
 aether_status_t aether_aegis_rule_get(size_t index,aether_aegis_rule_t *out){
     if(!out) return AETHER_ERR_INVALID;
     if(index>=rule_count) return AETHER_ERR_NOT_FOUND;
