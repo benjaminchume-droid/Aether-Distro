@@ -13,7 +13,7 @@ all: test
 
 aether-init: $(CORE_OBJ)
 	@mkdir -p build
-	$(CC) $(CFLAGS) $(INCLUDES) 03-init/src/main.c $(CORE_OBJ) -o build/aether-init
+	$(CC) $(CFLAGS) -static $(INCLUDES) 03-init/src/main.c $(CORE_OBJ) -o build/aether-init
 
 initramfs: aether-init
 	sh build/initramfs/build.sh
