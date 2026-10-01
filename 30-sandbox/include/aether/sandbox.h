@@ -39,6 +39,7 @@ typedef struct {
 } aether_sandbox_profile_t;
 
 int aether_sandbox_linux_available(void);
+int aether_sandbox_seccomp_available(void);
 int aether_sandbox_landlock_available(void);
 int aether_sandbox_cgroupv2_available(void);
 aether_status_t aether_sandbox_apply(const aether_sandbox_profile_t *profile);
