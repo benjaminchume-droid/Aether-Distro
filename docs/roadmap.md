@@ -76,6 +76,7 @@
 - [x] Aegis-backed permission broker
 - [x] Aegis policy attachment to identities/apps
 - [x] Aegis policy inspection and persistence
+- [x] Aegis explicit global network/IPC denial enforcement via namespaces
 - [ ] Aegis filesystem/network/device enforcement
 - [x] Linux namespace/no_new_privs/resource-limit sandbox adapter
 - [x] cgroup v2 memory/PID/CPU quota adapter
