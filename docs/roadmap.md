@@ -14,12 +14,20 @@
 - [x] CI build/test coverage
 
 ## Phase 2 — Bootable Aether
-- [ ] Upstream Linux kernel integration
-- [ ] Bootloader/EFI path
-- [ ] Initramfs
-- [ ] Aether PID 1
-- [ ] Service dependency graph
-- [ ] First QEMU boot
+- [x] Upstream Linux kernel integration
+- [x] Kernel configuration/build pipeline
+- [x] EFI-capable x86_64 kernel baseline
+- [x] Initramfs assembly
+- [x] Aether PID 1
+- [x] Early filesystem mounts
+- [x] Service process supervision
+- [x] Dependency-aware service startup
+- [x] Child reaping and shutdown
+- [x] Early boot logging
+- [x] Optional emergency shell in initramfs
+- [x] QEMU boot runner
+- [x] Phase 2 service lifecycle tests
+- [ ] Hardware-backed boot validation
 
 ## Phase 3 — Hardware
 - [ ] Hardware discovery
