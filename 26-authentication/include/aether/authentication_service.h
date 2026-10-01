@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "types.h"
+#include <aether/types.h>
 #include "auth.h"
 
 typedef enum {
