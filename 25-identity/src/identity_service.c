@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "aether/identity_service.h"
 #include <pwd.h>
 #include <sys/types.h>
