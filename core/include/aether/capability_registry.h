@@ -10,6 +10,7 @@ typedef struct {
     uint32_t flags;
     const char *name;
     const char *provider;
+    int available;
 } aether_capability_record_t;
 
 aether_status_t aether_capability_registry_init(void);
