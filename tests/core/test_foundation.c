@@ -31,7 +31,7 @@ int main(void){
  aether_event_bus_shutdown();
 
  assert(aether_capability_registry_init()==AETHER_OK);
- aether_capability_record_t cap={AETHER_CAP_CPU,10,0,"cpu0","kernel"};
+ aether_capability_record_t cap={AETHER_CAP_CPU,10,0,"cpu0","kernel",1};
  assert(aether_capability_register(&cap)==AETHER_OK);
  assert(aether_capability_count()==1);
  assert(aether_capability_find(10,AETHER_CAP_CPU)!=0);
