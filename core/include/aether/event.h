@@ -1,0 +1,18 @@
+#ifndef AETHER_EVENT_H
+#define AETHER_EVENT_H
+#include "types.h"
+typedef enum {
+ AETHER_EVENT_DEVICE_ADDED=1,
+ AETHER_EVENT_DEVICE_REMOVED,
+ AETHER_EVENT_CAPABILITY_CHANGED,
+ AETHER_EVENT_POWER_CHANGED,
+ AETHER_EVENT_AUTH_REQUESTED,
+ AETHER_EVENT_SESSION_CHANGED
+} aether_event_kind_t;
+typedef struct {
+ aether_event_kind_t kind;
+ aether_id_t source;
+ const void *payload;
+ uint64_t payload_size;
+} aether_event_t;
+#endif
