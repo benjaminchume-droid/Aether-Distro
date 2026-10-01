@@ -1,4 +1,4 @@
-#include <aether/thermal.h>
+#include "../include/aether/thermal.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
