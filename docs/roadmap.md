@@ -25,7 +25,10 @@
 - [x] Child reaping and shutdown
 - [x] Early boot logging
 - [x] Optional emergency shell in initramfs
-- [x] QEMU boot runner
+- [x] QEMU direct-kernel boot runner
+- [x] GRUB boot configuration
+- [x] UEFI-capable ISO assembly path
+- [x] QEMU ISO boot runner
 - [x] Phase 2 service lifecycle tests
 - [ ] Hardware-backed boot validation
 
