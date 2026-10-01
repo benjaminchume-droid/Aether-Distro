@@ -1,10 +1,10 @@
 CC ?= cc
 CFLAGS ?= -std=c11 -Wall -Wextra -Wpedantic -O2
-INCLUDES := -Icore/include -I03-init/include -I04-service-manager/include -I08-capabilities/include -I09-device/include -I10-cpu/include -I11-gpu/include -I12-display/include -I14-input/include -I13-audio/include -I15-camera/include -I16-storage/include -I17-network/include -I18-bluetooth/include -I20-thermal/include -I21-battery/include -I22-firmware/include
-CORE_SRC := core/src/power.c core/src/identity.c core/src/types.c core/src/ipc.c core/src/event_bus.c core/src/capability_registry.c 03-init/src/init.c 04-service-manager/src/service_manager.c 08-capabilities/src/capability_registry.c 08-capabilities/src/capability_service.c 09-device/src/device_manager.c 10-cpu/src/cpu_linux.c 11-gpu/src/gpu_linux.c 12-display/src/display_linux.c 14-input/src/input_linux.c 13-audio/src/audio_linux.c 15-camera/src/camera_linux.c 16-storage/src/storage_linux.c 17-network/src/network_linux.c 18-bluetooth/src/bluetooth_linux.c 20-thermal/src/thermal_linux.c 21-battery/src/battery_linux.c 22-firmware/src/firmware_linux.c
+INCLUDES := -Icore/include -I03-init/include -I04-service-manager/include -I08-capabilities/include -I09-device/include -I10-cpu/include -I11-gpu/include -I12-display/include -I14-input/include -I13-audio/include -I15-camera/include -I16-storage/include -I17-network/include -I18-bluetooth/include -I20-thermal/include -I21-battery/include -I22-firmware/include -I23-aegis/include
+CORE_SRC := core/src/power.c core/src/identity.c core/src/types.c core/src/ipc.c core/src/event_bus.c core/src/capability_registry.c 03-init/src/init.c 04-service-manager/src/service_manager.c 04-service-manager/src/system_services.c 08-capabilities/src/capability_registry.c 08-capabilities/src/capability_service.c 09-device/src/device_manager.c 10-cpu/src/cpu_linux.c 11-gpu/src/gpu_linux.c 12-display/src/display_linux.c 14-input/src/input_linux.c 13-audio/src/audio_linux.c 15-camera/src/camera_linux.c 16-storage/src/storage_linux.c 17-network/src/network_linux.c 18-bluetooth/src/bluetooth_linux.c 20-thermal/src/thermal_linux.c 21-battery/src/battery_linux.c 22-firmware/src/firmware_linux.c 23-aegis/src/aegis.c
 CORE_OBJ := $(CORE_SRC:.c=.o)
-.PHONY: all test foundation-test service-test hardware-test aether-init initramfs kernel iso boot boot-iso clean
-all: test foundation-test service-test hardware-test
+.PHONY: all test foundation-test service-test system-service-test hardware-test aegis-test aether-init initramfs kernel iso boot boot-iso clean
+all: test foundation-test service-test system-service-test aegis-test hardware-test
 test: build/test_power
 	./build/test_power
 foundation-test: $(CORE_OBJ) tests/core/test_foundation.c
@@ -15,6 +15,14 @@ service-test: $(CORE_OBJ) tests/service/test_service_manager.c
 	@mkdir -p build
 	$(CC) $(CFLAGS) $(INCLUDES) tests/service/test_service_manager.c $(CORE_OBJ) -o build/test_service_manager
 	./build/test_service_manager
+system-service-test: $(CORE_OBJ) tests/service/test_system_services.c
+	@mkdir -p build
+	$(CC) $(CFLAGS) $(INCLUDES) tests/service/test_system_services.c $(CORE_OBJ) -o build/test_system_services
+	./build/test_system_services
+aegis-test: $(CORE_OBJ) tests/aegis/test_aegis.c
+	@mkdir -p build
+	$(CC) $(CFLAGS) $(INCLUDES) tests/aegis/test_aegis.c $(CORE_OBJ) -o build/test_aegis
+	./build/test_aegis
 hardware-test: $(CORE_OBJ) tests/hardware/test_hardware.c
 	@mkdir -p build
 	$(CC) $(CFLAGS) $(INCLUDES) tests/hardware/test_hardware.c $(CORE_OBJ) -o build/test_hardware
@@ -45,7 +53,15 @@ core/src/%.o: core/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 09-device/src/%.o: 09-device/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+10-cpu/src/%.o: 10-cpu/src/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+11-gpu/src/%.o: 11-gpu/src/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+12-display/src/%.o: 12-display/src/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 13-audio/src/%.o: 13-audio/src/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+14-input/src/%.o: 14-input/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 15-camera/src/%.o: 15-camera/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -61,13 +77,7 @@ core/src/%.o: core/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 22-firmware/src/%.o: 22-firmware/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-10-cpu/src/%.o: 10-cpu/src/%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-11-gpu/src/%.o: 11-gpu/src/%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-12-display/src/%.o: 12-display/src/%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-14-input/src/%.o: 14-input/src/%.c
+23-aegis/src/%.o: 23-aegis/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 clean:
-	rm -rf build core/src/*.o 03-init/src/*.o 04-service-manager/src/*.o 08-capabilities/src/*.o 09-device/src/*.o 10-cpu/src/*.o 11-gpu/src/*.o 12-display/src/*.o 14-input/src/*.o 13-audio/src/*.o 15-camera/src/*.o 16-storage/src/*.o 17-network/src/*.o 18-bluetooth/src/*.o 20-thermal/src/*.o 21-battery/src/*.o 22-firmware/src/*.o
+	rm -rf build core/src/*.o 03-init/src/*.o 04-service-manager/src/*.o 08-capabilities/src/*.o 09-device/src/*.o 10-cpu/src/*.o 11-gpu/src/*.o 12-display/src/*.o 14-input/src/*.o 13-audio/src/*.o 15-camera/src/*.o 16-storage/src/*.o 17-network/src/*.o 18-bluetooth/src/*.o 20-thermal/src/*.o 21-battery/src/*.o 22-firmware/src/*.o 23-aegis/src/*.o
