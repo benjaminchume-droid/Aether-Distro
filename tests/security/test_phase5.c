@@ -4,6 +4,7 @@
 #include "aether/account_service.h"
 #include "aether/authentication_service.h"
 #include "aether/permission_broker.h"
+#include "aether/permission_subject.h"
 
 static aether_status_t verify_test(aether_id_t user_id,uint64_t challenge_id,const void *credential,size_t size,void *context){
  (void)challenge_id;
@@ -44,6 +45,9 @@ int main(void){
  assert(state.result==AETHER_AUTH_RESULT_FAILURE);
  aether_authentication_shutdown();
 
+ assert(aether_permission_subject_init()==AETHER_OK);
+ aether_permission_subject_t subject={.subject_id=identity.user_id,.kind=AETHER_SUBJECT_USER,.uid=identity.uid,.name="current-user",.executable=""};
+ assert(aether_permission_subject_register(&subject)==AETHER_OK);
  assert(aether_permission_init()==AETHER_OK);
  aether_permission_request_t denied={identity.user_id,AETHER_AEGIS_RESOURCE_PROCESS,"/bin/true"};
  assert(aether_permission_check(&denied)==AETHER_AEGIS_DECISION_DENY);
@@ -52,5 +56,6 @@ int main(void){
  assert(aether_permission_revoke(identity.user_id,AETHER_AEGIS_RESOURCE_PROCESS,"/bin/true")==AETHER_OK);
  assert(aether_permission_check(&denied)==AETHER_AEGIS_DECISION_DENY);
  aether_permission_shutdown();
+ aether_permission_subject_shutdown();
  return 0;
 }
