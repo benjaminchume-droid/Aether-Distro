@@ -1,4 +1,4 @@
-#include <aether/network.h>
+#include "../include/aether/network.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
