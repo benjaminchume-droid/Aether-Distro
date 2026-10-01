@@ -4,6 +4,12 @@
 #include "aether/authentication_service.h"
 #include "aether/permission_broker.h"
 
+static aether_status_t verify_test(aether_id_t user_id,uint64_t challenge_id,const void *credential,size_t size,void *context){
+ (void)challenge_id;
+ if(user_id!=1 || context!=0 || size!=4 || !credential) return AETHER_ERR_PERMISSION;
+ return memcmp(credential,"pass",4)==0 ? AETHER_OK : AETHER_ERR_PERMISSION;
+}
+
 int main(void){
  aether_identity_record_t identity;
  assert(aether_identity_current(&identity)==AETHER_OK);
@@ -14,7 +20,7 @@ int main(void){
  assert(account.user_id==identity.user_id);
 
  assert(aether_authentication_init()==AETHER_OK);
- aether_auth_provider_t provider={AETHER_AUTH_PASSWORD,0,"host-password-provider"};
+ aether_auth_provider_t provider={.method=AETHER_AUTH_PASSWORD,.flags=0,.provider="test-provider",.verify=verify_test};
  assert(aether_authentication_register(&provider)==AETHER_OK);
  uint64_t challenge=0;
  aether_auth_request_t request={identity.user_id,AETHER_AUTH_PASSWORD,0};
@@ -23,7 +29,14 @@ int main(void){
  aether_auth_challenge_t state;
  assert(aether_authentication_get(challenge,&state)==AETHER_OK);
  assert(state.result==AETHER_AUTH_RESULT_PENDING);
- assert(aether_authentication_complete(challenge,AETHER_AUTH_RESULT_FAILURE)==AETHER_OK);
+ assert(aether_authentication_submit(challenge,"nope",4)==AETHER_OK);
+ assert(aether_authentication_get(challenge,&state)==AETHER_OK);
+ assert(state.result==AETHER_AUTH_RESULT_FAILURE);
+ assert(aether_authentication_begin(&request,&challenge)==AETHER_OK);
+ assert(aether_authentication_submit(challenge,"pass",4)==AETHER_OK);
+ assert(aether_authentication_get(challenge,&state)==AETHER_OK);
+ assert(state.result==AETHER_AUTH_RESULT_SUCCESS);
+ assert(aether_authentication_complete(challenge,AETHER_AUTH_RESULT_FAILURE)==AETHER_ERR_STATE);
  assert(aether_authentication_get(challenge,&state)==AETHER_OK);
  assert(state.result==AETHER_AUTH_RESULT_FAILURE);
  aether_authentication_shutdown();
