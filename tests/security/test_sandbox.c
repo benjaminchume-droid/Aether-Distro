@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <assert.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <linux/unistd.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -90,7 +91,11 @@ int main(void){
         pid=fork();
         assert(pid>=0);
         if(pid==0){
-            assert(aether_sandbox_apply(&profile)==AETHER_OK);
+            aether_status_t sandbox_status=aether_sandbox_apply(&profile);
+            if(sandbox_status!=AETHER_OK){
+                dprintf(STDERR_FILENO,"seccomp apply failed: status=%d errno=%d\\n",(int)sandbox_status,errno);
+                _exit(100+(int)sandbox_status);
+            }
             _exit(0);
         }
         assert(waitpid(pid,&status,0)==pid);
