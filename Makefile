@@ -1,10 +1,10 @@
 CC ?= cc
 CFLAGS ?= -std=c11 -Wall -Wextra -Wpedantic -O2
-INCLUDES := -Icore/include -I03-init/include -I04-service-manager/include -I08-capabilities/include -I09-device/include -I10-cpu/include -I11-gpu/include -I12-display/include -I14-input/include -I13-audio/include -I15-camera/include -I16-storage/include -I17-network/include -I18-bluetooth/include -I20-thermal/include -I21-battery/include -I22-firmware/include -I23-aegis/include -I25-identity/include -I26-authentication/include -I27-accounts/include -I29-permissions/include -I30-sandbox/include -I31-crypto/include -I24-tpm/include
-CORE_SRC := core/src/power.c core/src/identity.c core/src/types.c core/src/ipc.c core/src/event_bus.c core/src/capability_registry.c core/src/session.c core/src/notification.c core/src/clipboard.c core/src/search.c 03-init/src/init.c 04-service-manager/src/service_manager.c 04-service-manager/src/system_services.c 08-capabilities/src/capability_service.c 09-device/src/device_manager.c 10-cpu/src/cpu_linux.c 11-gpu/src/gpu_linux.c 12-display/src/display_linux.c 14-input/src/input_linux.c 13-audio/src/audio_linux.c 13-audio/src/audio_service.c 15-camera/src/camera_linux.c 16-storage/src/storage_linux.c 16-storage/src/storage_service.c 17-network/src/network_linux.c 17-network/src/network_service.c 18-bluetooth/src/bluetooth_linux.c 20-thermal/src/thermal_linux.c 21-battery/src/battery_linux.c 22-firmware/src/firmware_linux.c 23-aegis/src/aegis.c 25-identity/src/identity_service.c 26-authentication/src/authentication_service.c 27-accounts/src/account_service.c 29-permissions/src/permission_broker.c 30-sandbox/src/sandbox_linux.c 31-crypto/src/crypto_linux.c 24-tpm/src/tpm_linux.c
+INCLUDES := -Icore/include -I03-init/include -I04-service-manager/include -I08-capabilities/include -I09-device/include -I10-cpu/include -I11-gpu/include -I12-display/include -I14-input/include -I13-audio/include -I15-camera/include -I16-storage/include -I17-network/include -I18-bluetooth/include -I20-thermal/include -I21-battery/include -I22-firmware/include -I23-aegis/include -I25-identity/include -I26-authentication/include -I27-accounts/include -I29-permissions/include -I30-sandbox/include -I31-crypto/include -I24-tpm/include -I23-biometric/include
+CORE_SRC := core/src/power.c core/src/identity.c core/src/types.c core/src/ipc.c core/src/event_bus.c core/src/capability_registry.c core/src/session.c core/src/notification.c core/src/clipboard.c core/src/search.c 03-init/src/init.c 04-service-manager/src/service_manager.c 04-service-manager/src/system_services.c 08-capabilities/src/capability_service.c 09-device/src/device_manager.c 10-cpu/src/cpu_linux.c 11-gpu/src/gpu_linux.c 12-display/src/display_linux.c 14-input/src/input_linux.c 13-audio/src/audio_linux.c 13-audio/src/audio_service.c 15-camera/src/camera_linux.c 16-storage/src/storage_linux.c 16-storage/src/storage_service.c 17-network/src/network_linux.c 17-network/src/network_service.c 18-bluetooth/src/bluetooth_linux.c 20-thermal/src/thermal_linux.c 21-battery/src/battery_linux.c 22-firmware/src/firmware_linux.c 23-aegis/src/aegis.c 25-identity/src/identity_service.c 26-authentication/src/authentication_service.c 27-accounts/src/account_service.c 29-permissions/src/permission_broker.c 30-sandbox/src/sandbox_linux.c 31-crypto/src/crypto_linux.c 24-tpm/src/tpm_linux.c 23-biometric/src/biometric_service.c
 CORE_OBJ := $(CORE_SRC:.c=.o)
-.PHONY: all test foundation-test service-test system-service-test hardware-test aegis-test phase5-test sandbox-test crypto-tpm-test aether-init initramfs kernel iso boot boot-iso clean
-all: test foundation-test service-test system-service-test aegis-test phase5-test sandbox-test crypto-tpm-test hardware-test
+.PHONY: all test foundation-test service-test system-service-test hardware-test aegis-test phase5-test sandbox-test crypto-tpm-test biometric-test aether-init initramfs kernel iso boot boot-iso clean
+all: test foundation-test service-test system-service-test aegis-test phase5-test sandbox-test crypto-tpm-test biometric-test hardware-test
 test: build/test_power
 	./build/test_power
 foundation-test: $(CORE_OBJ) tests/core/test_foundation.c
@@ -23,6 +23,10 @@ phase5-test: $(CORE_OBJ) tests/security/test_phase5.c
 	@mkdir -p build
 	$(CC) $(CFLAGS) $(INCLUDES) tests/security/test_phase5.c $(CORE_OBJ) -o build/test_phase5
 	./build/test_phase5
+biometric-test: $(CORE_OBJ) tests/security/test_biometric.c
+	@mkdir -p build
+	$(CC) $(CFLAGS) $(INCLUDES) tests/security/test_biometric.c $(CORE_OBJ) -o build/test_biometric
+	./build/test_biometric
 crypto-tpm-test: $(CORE_OBJ) tests/security/test_crypto_tpm.c
 	@mkdir -p build
 	$(CC) $(CFLAGS) $(INCLUDES) tests/security/test_crypto_tpm.c $(CORE_OBJ) -o build/test_crypto_tpm
@@ -99,6 +103,8 @@ core/src/%.o: core/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 31-crypto/src/%.o: 31-crypto/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+23-biometric/src/%.o: 23-biometric/src/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 24-tpm/src/%.o: 24-tpm/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 29-permissions/src/%.o: 29-permissions/src/%.c
@@ -106,4 +112,4 @@ core/src/%.o: core/src/%.c
 23-aegis/src/%.o: 23-aegis/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 clean:
-	rm -rf build core/src/*.o 03-init/src/*.o 04-service-manager/src/*.o 09-device/src/*.o 10-cpu/src/*.o 11-gpu/src/*.o 12-display/src/*.o 14-input/src/*.o 13-audio/src/*.o 15-camera/src/*.o 16-storage/src/*.o 17-network/src/*.o 18-bluetooth/src/*.o 20-thermal/src/*.o 21-battery/src/*.o 22-firmware/src/*.o 23-aegis/src/*.o 25-identity/src/*.o 26-authentication/src/*.o 27-accounts/src/*.o 29-permissions/src/*.o 30-sandbox/src/*.o 31-crypto/src/*.o 24-tpm/src/*.o 16-storage/src/*.o 17-network/src/*.o 13-audio/src/*.o
+	rm -rf build core/src/*.o 03-init/src/*.o 04-service-manager/src/*.o 09-device/src/*.o 10-cpu/src/*.o 11-gpu/src/*.o 12-display/src/*.o 14-input/src/*.o 13-audio/src/*.o 15-camera/src/*.o 16-storage/src/*.o 17-network/src/*.o 18-bluetooth/src/*.o 20-thermal/src/*.o 21-battery/src/*.o 22-firmware/src/*.o 23-aegis/src/*.o 25-identity/src/*.o 26-authentication/src/*.o 27-accounts/src/*.o 29-permissions/src/*.o 30-sandbox/src/*.o 31-crypto/src/*.o 24-tpm/src/*.o 23-biometric/src/*.o 16-storage/src/*.o 17-network/src/*.o 13-audio/src/*.o
