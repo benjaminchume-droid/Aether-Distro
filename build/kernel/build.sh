@@ -13,6 +13,7 @@ if [ ! -d "$SRC" ]; then
   fi
   tar -xf "$TARBALL" -C "$ROOT/build"
 fi
+cp "$ROOT/02-kernel/aether-x86_64.config" "$SRC/build/.config"
 make -C "$SRC" O="$SRC/build" ARCH=x86_64 olddefconfig
 make -C "$SRC" O="$SRC/build" ARCH=x86_64 -j"$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)"
 cp "$SRC/build/arch/x86/boot/bzImage" "$ROOT/build/aether-kernel"
