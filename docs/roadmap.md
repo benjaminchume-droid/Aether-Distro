@@ -50,6 +50,13 @@
 - [x] Aegis policy model and general-purpose rule engine
 - [x] Aegis enforcement-plane architecture
 - [x] System-service registry/integration contracts
+- [x] Storage volume service facade
+- [x] Network service facade
+- [x] Audio service facade
+- [x] Session state service
+- [x] Notification service
+- [x] Clipboard service
+- [x] Search service
 - [x] Aegis policy unit tests
 - [ ] Aegis kernel/network/filesystem enforcement adapters
 
