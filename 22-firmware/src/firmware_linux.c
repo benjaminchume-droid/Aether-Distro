@@ -1,4 +1,4 @@
-#include <aether/firmware.h>
+#include "../include/aether/firmware.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
