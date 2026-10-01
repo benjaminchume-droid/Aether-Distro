@@ -33,12 +33,13 @@
 - [ ] Hardware-backed boot validation
 
 ## Phase 3 — Hardware
-- [ ] Hardware discovery
-- [ ] Device manager
-- [ ] CPU/GPU/display/audio/input/camera
-- [ ] Storage/network/Bluetooth
-- [ ] Battery/thermal/power
-- [ ] Firmware
+- [x] Linux sysfs device discovery
+- [x] Device manager
+- [x] CPU/GPU/display/audio/input/camera discovery
+- [x] Storage/network/Bluetooth discovery
+- [x] Battery/thermal/power state discovery
+- [x] Firmware inventory
+- [ ] Hardware-backed boot validation
 
 ## Phase 4 — System Services
 - [ ] Storage service
