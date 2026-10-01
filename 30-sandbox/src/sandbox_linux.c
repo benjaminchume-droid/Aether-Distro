@@ -10,6 +10,7 @@
 #include <linux/seccomp.h>
 #include <sched.h>
 #include <signal.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mount.h>
@@ -203,20 +204,38 @@ static int seccomp_audit_arch(void){
 #endif
 }
 
+static uint32_t seccomp_supported_kill_action(void){
+#ifdef SYS_seccomp
+    uint32_t action=SECCOMP_RET_KILL_PROCESS;
+    if(syscall(SYS_seccomp,SECCOMP_GET_ACTION_AVAIL,0,&action)==0) return action;
+#ifdef SECCOMP_RET_KILL_THREAD
+    action=SECCOMP_RET_KILL_THREAD;
+    if(syscall(SYS_seccomp,SECCOMP_GET_ACTION_AVAIL,0,&action)==0) return action;
+#endif
+#endif
+    return 0;
+}
+
 static int apply_seccomp_allowlist(const aether_sandbox_profile_t *p){
-#ifdef PR_SET_SECCOMP
+#ifdef SYS_seccomp
     if(!p->seccomp_syscall_count) return 0;
     if(!p->seccomp_syscalls) { errno=EINVAL; return -1; }
     if(seccomp_audit_arch()<0){ errno=ENOTSUP; return -1; }
 
+    uint32_t kill_action=seccomp_supported_kill_action();
+    if(!kill_action){ errno=EOPNOTSUPP; return -1; }
+
     size_t count=p->seccomp_syscall_count;
-    struct sock_filter *filter=calloc(count*2+5,sizeof(*filter));
+    if(count>((SIZE_MAX-5u)/2u)){errno=EOVERFLOW;return -1;}
+    size_t max_instructions=count*2u+5u;
+    if(max_instructions>USHRT_MAX){errno=E2BIG;return -1;}
+    struct sock_filter *filter=calloc(max_instructions,sizeof(*filter));
     if(!filter){errno=ENOMEM;return -1;}
 
     size_t n=0;
     filter[n++]=(struct sock_filter)BPF_STMT(BPF_LD|BPF_W|BPF_ABS,offsetof(struct seccomp_data,arch));
     filter[n++]=(struct sock_filter)BPF_JUMP(BPF_JMP|BPF_JEQ|BPF_K,(uint32_t)seccomp_audit_arch(),1,0);
-    filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_KILL_PROCESS);
+    filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,kill_action);
     filter[n++]=(struct sock_filter)BPF_STMT(BPF_LD|BPF_W|BPF_ABS,offsetof(struct seccomp_data,nr));
 
     for(size_t i=0;i<count;i++){
@@ -228,7 +247,7 @@ static int apply_seccomp_allowlist(const aether_sandbox_profile_t *p){
         filter[n++]=(struct sock_filter)BPF_JUMP(BPF_JMP|BPF_JEQ|BPF_K,(uint32_t)p->seccomp_syscalls[i],0,1);
         filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_ALLOW);
     }
-    filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_KILL_PROCESS);
+    filter[n++]=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,kill_action);
 
     struct sock_fprog program={(unsigned short)n,filter};
     if(prctl(PR_SET_NO_NEW_PRIVS,1,0,0,0)!=0){int saved=errno;free(filter);errno=saved;return -1;}
@@ -273,14 +292,18 @@ static int apply_cgroup(const aether_sandbox_profile_t *p){
 }
 
 int aether_sandbox_seccomp_available(void){
-#ifdef PR_SET_SECCOMP
+#ifdef SYS_seccomp
+    if(!seccomp_supported_kill_action()) return 0;
+    int allowed[]={__NR_exit_group};
+    aether_sandbox_profile_t profile={
+        .flags=AETHER_SANDBOX_NO_NEW_PRIVS|AETHER_SANDBOX_SECCOMP_ALLOWLIST,
+        .seccomp_syscalls=allowed,
+        .seccomp_syscall_count=1
+    };
     pid_t pid=fork();
     if(pid<0) return 0;
     if(pid==0){
-        struct sock_filter filter=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_ALLOW);
-        struct sock_fprog program={(unsigned short)1,&filter};
-        if(prctl(PR_SET_NO_NEW_PRIVS,1,0,0,0)!=0) _exit(1);
-        if(prctl(PR_SET_SECCOMP,SECCOMP_MODE_FILTER,&program,0,0)!=0) _exit(1);
+        if(apply_seccomp_allowlist(&profile)!=0) _exit(1);
         _exit(0);
     }
     int status=0;
