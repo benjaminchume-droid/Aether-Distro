@@ -1,4 +1,4 @@
-#include <aether/audio.h>
+#include "../include/aether/audio.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
