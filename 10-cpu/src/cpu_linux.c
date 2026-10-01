@@ -1,4 +1,4 @@
-#include <aether/cpu.h>
+#include "../include/aether/cpu.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
