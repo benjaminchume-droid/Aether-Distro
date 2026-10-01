@@ -1,4 +1,4 @@
-#include <aether/input.h>
+#include "../include/aether/input.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
