@@ -66,7 +66,8 @@
 - [x] Authentication provider/challenge orchestration
 - [x] TPM discovery and device availability
 - [ ] Accounts lifecycle management
-- [ ] Password/PIN authentication
+- [x] Linux PAM password provider integration
+- [ ] Password/PIN authentication end-to-end verification
 - [ ] Security keys
 - [x] Biometric provider registry
 - [ ] Fingerprint provider implementation
