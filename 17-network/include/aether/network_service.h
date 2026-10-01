@@ -1,7 +1,7 @@
 #ifndef AETHER_NETWORK_SERVICE_H
 #define AETHER_NETWORK_SERVICE_H
 #include <stddef.h>
-#include "types.h"
+#include <aether/types.h>
 typedef struct { char name[64]; unsigned up; unsigned wireless; } aether_network_state_t;
 aether_status_t aether_network_service_refresh(void);
 aether_status_t aether_network_state_count(size_t *count);
