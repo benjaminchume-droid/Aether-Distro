@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "types.h"
+#include <aether/types.h>
 
 typedef struct {
     char device_path[128];
