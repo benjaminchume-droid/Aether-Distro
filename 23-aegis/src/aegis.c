@@ -70,6 +70,7 @@ aether_aegis_decision_t aether_aegis_evaluate(const aether_aegis_request_t *requ
         const aether_aegis_rule_t *r=&rules[i];
         if(r->subject_id==request->subject_id && r->resource==request->resource &&
            scope_matches(r->scope,request->scope) &&
+           (r->access==0 || (request->access!=0 && (r->access & request->access)==request->access)) &&
            (!best || r->priority>best->priority))
             best=r;
     }
@@ -107,11 +108,12 @@ aether_status_t aether_aegis_save(const char *path){
             fclose(f);
             return AETHER_ERR_INVALID;
         }
-        if(fprintf(f,"%llu %u %u %u %s\n",
+        if(fprintf(f,"%llu %u %u %u %u %s\n",
                    (unsigned long long)r->subject_id,
                    (unsigned)r->resource,
                    (unsigned)r->decision,
                    (unsigned)r->priority,
+                   (unsigned)r->access,
                    scope)<0){
             fclose(f);
             return AETHER_ERR_IO;
@@ -140,10 +142,15 @@ aether_status_t aether_aegis_load(const char *path){
         char *resource_text=strtok_r(NULL," \t\r\n",&saveptr);
         char *decision_text=strtok_r(NULL," \t\r\n",&saveptr);
         char *priority_text=strtok_r(NULL," \t\r\n",&saveptr);
+        char *access_text=strtok_r(NULL," \t\r\n",&saveptr);
         char *scope_text=strtok_r(NULL," \t\r\n",&saveptr);
-        if(!subject_text || !resource_text || !decision_text || !priority_text || !scope_text){
+        if(!subject_text || !resource_text || !decision_text || !priority_text){
             fclose(f);
             return AETHER_ERR_INVALID;
+        }
+        if(!scope_text){
+            scope_text=access_text;
+            access_text=NULL;
         }
         if(loaded_count>=AETHER_AEGIS_MAX_RULES){
             fclose(f);
@@ -159,10 +166,15 @@ aether_status_t aether_aegis_load(const char *path){
         if(!end || *end){fclose(f);return AETHER_ERR_INVALID;}
         unsigned long priority=strtoul(priority_text,&end,10);
         if(!end || *end){fclose(f);return AETHER_ERR_INVALID;}
+        unsigned long access=0;
+        if(access_text){
+            access=strtoul(access_text,&end,10);
+            if(!end || *end){fclose(f);return AETHER_ERR_INVALID;}
+        }
 
         if(subject==0 || resource==0 ||
            decision<AETHER_AEGIS_DECISION_ALLOW || decision>AETHER_AEGIS_DECISION_AUDIT ||
-           priority>UINT32_MAX || strlen(scope_text)>=AETHER_AEGIS_SCOPE_MAX){
+           priority>UINT32_MAX || access>UINT32_MAX || !scope_text || strlen(scope_text)>=AETHER_AEGIS_SCOPE_MAX){
             fclose(f);
             return AETHER_ERR_INVALID;
         }
@@ -171,6 +183,7 @@ aether_status_t aether_aegis_load(const char *path){
         loaded[loaded_count].resource=(aether_aegis_resource_t)resource;
         loaded[loaded_count].decision=(aether_aegis_decision_t)decision;
         loaded[loaded_count].priority=(uint32_t)priority;
+        loaded[loaded_count].access=(uint32_t)access;
         if(strcmp(scope_text,"-")!=0){
             snprintf(scopes[loaded_count],sizeof(scopes[loaded_count]),"%s",scope_text);
             loaded[loaded_count].scope=scopes[loaded_count];
