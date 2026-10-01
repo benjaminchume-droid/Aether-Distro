@@ -248,8 +248,23 @@ aether_status_t aether_sandbox_spawn(const aether_sandbox_profile_t *profile,
 aether_status_t aether_sandbox_spawn_subject(aether_id_t subject,const aether_sandbox_profile_t *profile,
                                      const char *path,char *const argv[],char *const envp[],
                                      pid_t *pid_out){
-    if(!subject) return AETHER_ERR_INVALID;
-    aether_aegis_request_t request={subject,AETHER_AEGIS_RESOURCE_PROCESS,path};
-    if(aether_aegis_evaluate(&request)!=AETHER_AEGIS_DECISION_ALLOW) return AETHER_ERR_PERMISSION;
-    return aether_sandbox_spawn(profile,path,argv,envp,pid_out);
+    if(!subject || !profile) return AETHER_ERR_INVALID;
+
+    aether_aegis_request_t process_request={subject,AETHER_AEGIS_RESOURCE_PROCESS,path};
+    if(aether_aegis_evaluate(&process_request)!=AETHER_AEGIS_DECISION_ALLOW)
+        return AETHER_ERR_PERMISSION;
+
+    aether_sandbox_profile_t effective=*profile;
+
+    aether_aegis_request_t network_request={subject,AETHER_AEGIS_RESOURCE_NETWORK,NULL};
+    if(aether_aegis_has_rule(subject,AETHER_AEGIS_RESOURCE_NETWORK,NULL) &&
+       aether_aegis_evaluate(&network_request)==AETHER_AEGIS_DECISION_DENY)
+        effective.flags|=AETHER_SANDBOX_NEW_NET_NS;
+
+    aether_aegis_request_t ipc_request={subject,AETHER_AEGIS_RESOURCE_IPC,NULL};
+    if(aether_aegis_has_rule(subject,AETHER_AEGIS_RESOURCE_IPC,NULL) &&
+       aether_aegis_evaluate(&ipc_request)==AETHER_AEGIS_DECISION_DENY)
+        effective.flags|=AETHER_SANDBOX_NEW_IPC_NS;
+
+    return aether_sandbox_spawn(&effective,path,argv,envp,pid_out);
 }
