@@ -1,7 +1,7 @@
 #ifndef AETHER_IDENTITY_SERVICE_H
 #define AETHER_IDENTITY_SERVICE_H
 #include <stdint.h>
-#include "types.h"
+#include <aether/types.h>
 
 typedef struct {
  aether_id_t user_id;
