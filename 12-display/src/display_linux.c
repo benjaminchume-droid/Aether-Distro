@@ -1,4 +1,4 @@
-#include <aether/display.h>
+#include "../include/aether/display.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
