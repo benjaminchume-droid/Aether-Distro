@@ -1,7 +1,7 @@
 #ifndef AETHER_PERMISSION_BROKER_H
 #define AETHER_PERMISSION_BROKER_H
 #include <stddef.h>
-#include "types.h"
+#include <aether/types.h>
 #include "aegis.h"
 
 typedef struct {
