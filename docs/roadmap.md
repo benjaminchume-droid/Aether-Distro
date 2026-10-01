@@ -74,6 +74,7 @@
 - [x] Kernel-backed cryptographic random, constant-time compare, and secure wipe primitives
 - [x] Aegis-backed permission broker
 - [x] Aegis policy attachment to identities/apps
+- [x] Aegis policy inspection and persistence
 - [ ] Aegis filesystem/network/device enforcement
 - [x] Linux namespace/no_new_privs/resource-limit sandbox adapter
 - [x] cgroup v2 memory/PID/CPU quota adapter
