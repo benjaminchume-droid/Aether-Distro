@@ -30,6 +30,9 @@ aether_status_t aether_aegis_add_rule(const aether_aegis_rule_t *rule){
         return AETHER_ERR_INVALID;
     if(rule_count>=AETHER_AEGIS_MAX_RULES) return AETHER_ERR_LIMIT;
     if(rule->scope && strlen(rule->scope)>=AETHER_AEGIS_SCOPE_MAX) return AETHER_ERR_LIMIT;
+    const uint32_t known_access=AETHER_AEGIS_ACCESS_READ|AETHER_AEGIS_ACCESS_WRITE|
+        AETHER_AEGIS_ACCESS_EXECUTE|AETHER_AEGIS_ACCESS_CREATE|AETHER_AEGIS_ACCESS_DELETE;
+    if(rule->access & ~known_access) return AETHER_ERR_INVALID;
 
     size_t i=rule_count++;
     rules[i]=*rule;
@@ -43,22 +46,35 @@ aether_status_t aether_aegis_add_rule(const aether_aegis_rule_t *rule){
     return AETHER_OK;
 }
 
-aether_status_t aether_aegis_remove_rule(aether_id_t subject_id,aether_aegis_resource_t resource,const char *scope){
+static aether_status_t remove_matching_rule(aether_id_t subject_id,aether_aegis_resource_t resource,
+                                                  const char *scope,int exact_access,uint32_t access){
     for(size_t i=0;i<rule_count;i++){
-        if(rules[i].subject_id==subject_id && rules[i].resource==resource &&
-           scope_matches(rules[i].scope,scope)){
-            size_t last=--rule_count;
-            if(i!=last){
-                rules[i]=rules[last];
-                memcpy(scope_storage[i],scope_storage[last],sizeof(scope_storage[i]));
-                rules[i].scope=scope_storage[i][0] ? scope_storage[i] : NULL;
-            }
-            memset(&rules[last],0,sizeof(rules[last]));
-            memset(scope_storage[last],0,sizeof(scope_storage[last]));
-            return AETHER_OK;
+        if(rules[i].subject_id!=subject_id || rules[i].resource!=resource ||
+           !scope_matches(rules[i].scope,scope)) continue;
+        if(exact_access && rules[i].access!=access) continue;
+        size_t last=--rule_count;
+        if(i!=last){
+            rules[i]=rules[last];
+            memcpy(scope_storage[i],scope_storage[last],sizeof(scope_storage[i]));
+            rules[i].scope=scope_storage[i][0] ? scope_storage[i] : NULL;
         }
+        memset(&rules[last],0,sizeof(rules[last]));
+        memset(scope_storage[last],0,sizeof(scope_storage[last]));
+        return AETHER_OK;
     }
     return AETHER_ERR_NOT_FOUND;
+}
+
+aether_status_t aether_aegis_remove_rule(aether_id_t subject_id,aether_aegis_resource_t resource,const char *scope){
+    return remove_matching_rule(subject_id,resource,scope,0,0);
+}
+
+aether_status_t aether_aegis_remove_rule_access(aether_id_t subject_id,aether_aegis_resource_t resource,
+                                                 const char *scope,uint32_t access){
+    const uint32_t known_access=AETHER_AEGIS_ACCESS_READ|AETHER_AEGIS_ACCESS_WRITE|
+        AETHER_AEGIS_ACCESS_EXECUTE|AETHER_AEGIS_ACCESS_CREATE|AETHER_AEGIS_ACCESS_DELETE;
+    if(access & ~known_access) return AETHER_ERR_INVALID;
+    return remove_matching_rule(subject_id,resource,scope,1,access);
 }
 
 aether_aegis_decision_t aether_aegis_evaluate(const aether_aegis_request_t *request){
