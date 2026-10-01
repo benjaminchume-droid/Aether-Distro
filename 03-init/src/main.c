@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <aether/init.h>
 #include <aether/service_manager.h>
 #include <aether/capability_registry.h>
