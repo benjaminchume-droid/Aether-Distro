@@ -2,7 +2,7 @@
 #define AETHER_AEGIS_H
 #include <stddef.h>
 #include <stdint.h>
-#include "types.h"
+#include <aether/types.h>
 
 typedef enum {
     AETHER_AEGIS_DECISION_ALLOW = 1,
