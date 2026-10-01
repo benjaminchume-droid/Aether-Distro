@@ -272,6 +272,25 @@ static int apply_cgroup(const aether_sandbox_profile_t *p){
     return write_text_file(procs,pid_text);
 }
 
+int aether_sandbox_seccomp_available(void){
+#ifdef PR_SET_SECCOMP
+    pid_t pid=fork();
+    if(pid<0) return 0;
+    if(pid==0){
+        struct sock_filter filter=(struct sock_filter)BPF_STMT(BPF_RET|BPF_K,SECCOMP_RET_ALLOW);
+        struct sock_fprog program={(unsigned short)1,&filter};
+        if(prctl(PR_SET_NO_NEW_PRIVS,1,0,0,0)!=0) _exit(1);
+        if(prctl(PR_SET_SECCOMP,SECCOMP_MODE_FILTER,&program,0,0)!=0) _exit(1);
+        _exit(0);
+    }
+    int status=0;
+    if(waitpid(pid,&status,0)!=pid) return 0;
+    return WIFEXITED(status) && WEXITSTATUS(status)==0;
+#else
+    return 0;
+#endif
+}
+
 int aether_sandbox_linux_available(void){
 #ifdef __linux__
     return 1;
