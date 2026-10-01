@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <aether/types.h>
-#include "auth.h"
+#include <aether/auth.h>
 
 typedef enum {
     AETHER_AUTH_RESULT_PENDING = 1,
